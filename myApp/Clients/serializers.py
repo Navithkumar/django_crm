@@ -12,10 +12,13 @@ class clientSerializer(serializers.ModelSerializer):
             'company_linkedin',
             'client_name',
             'email',
-            'lastcontacted',
+            'last_contacted',
             'project_description',
             'status',
             'priority',
             'document_upload',
+            'parent_id',
+            'user_id',
         ]
+        read_only_fields = ['created_at', 'updated_at'] 
 

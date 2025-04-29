@@ -5,12 +5,18 @@ from .models import Client
 from rest_framework import status
 from django.shortcuts import get_object_or_404
 from CRM.common.pagination import MyCustomPagination
+from rest_framework.permissions import IsAuthenticated
+from django.db.models import Q 
 
 class AddClientView(APIView):
+    permission_classes = [IsAuthenticated]
     def post(self, request):
         serializer = clientSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save()
+            serializer.save(
+                user_id=request.user.id,
+                parent_id=request.user.parent_id or None 
+            )
             return Response({
                 'is_v1':True,
                 'status':True,
@@ -19,8 +25,20 @@ class AddClientView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class ClientListing(APIView):
+    permission_classes = [IsAuthenticated]
     def get(self,request):
-        clients = Client.objects.all().order_by('-lastcontacted')
+        
+        user = request.user
+        if user.is_super_admin == 1:
+            clients = Client.objects.all().order_by('-created_at')
+        elif user.is_admin == 1:
+            clients = Client.objects.filter(
+                Q(user=user) | Q(parent=user)
+            ).order_by('-created_at')
+        else:
+            clients = Client.objects.filter(user=user).order_by('-created_at')
+
+
         paginator = MyCustomPagination()
         result_page = paginator.paginate_queryset(clients, request)
         serializer = clientSerializer(result_page, many=True)
@@ -34,6 +52,7 @@ class ClientListing(APIView):
                 })
 
 class ClientUpdateView(APIView):
+    permission_classes = [IsAuthenticated]
     def patch(self,request,pk):
         client = get_object_or_404(Client, pk=pk)
         serializer = clientSerializer(client, data=request.data, partial=True)
@@ -47,6 +66,7 @@ class ClientUpdateView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class DeleteClientView(APIView):
+    permission_classes = [IsAuthenticated]
     def delete(self,request,id):
             client = get_object_or_404(Client, id=id)
             client.delete()
@@ -57,6 +77,7 @@ class DeleteClientView(APIView):
                 })
 
 class ClientListById(APIView):
+    permission_classes = [IsAuthenticated]
     def get(self,request,id):
         client = get_object_or_404(Client, id=id)
         serializer = clientSerializer(client)
