@@ -1,7 +1,9 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from .serializers import TaskSerializer
+from myApp.Notification.serializers import NotificationSerializer
 from .models import ClientTask
+from myApp.Notification.models import notification
 from rest_framework import status
 from django.shortcuts import get_object_or_404
 from CRM.common.pagination import MyCustomPagination
@@ -109,6 +111,18 @@ class AssignTaskView(APIView):
             task.priority = data.get('priority', task.priority)
             task.task_status = data.get('task_status', task.task_status)
             task.save()
+            
+            notification_data = {
+                "notification_type": "Task",
+                "task_id": id,
+                "user_id": task.assigned_to,
+                "notification_content": "Task Assigned to you"
+            }
+
+            notification_serializer = NotificationSerializer(data=notification_data)
+            if notification_serializer.is_valid():
+                notification_serializer.save()
+
 
             return Response({
                 'is_v1':True,
