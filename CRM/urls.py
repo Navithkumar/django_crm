@@ -23,6 +23,7 @@ urlpatterns = [
     path('api/v1/', include('myApp.Authuser.urls')),
     path('api/v1/', include('myApp.Clients.urls')),
     path('api/v1/', include('myApp.Clients_logs.urls')),
+    path('api/v1/', include('myApp.Client_task.urls')),
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
