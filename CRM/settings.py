@@ -145,5 +145,6 @@ AUTH_USER_MODEL = 'myApp.User'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
+MIDDLEWARE += ['CRM.middleware.RoleBasedAccessMiddleware']
 
 
