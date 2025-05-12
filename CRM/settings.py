@@ -39,7 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework_simplejwt',
-    'myApp'
+    'myApp',
+    'channels'
 ]
 
 MIDDLEWARE = [
@@ -50,6 +51,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'myApp.Authuser.middleware.RoleBasedAccessMiddleware',
 ]
 
 ROOT_URLCONF = 'CRM.urls'
@@ -86,7 +88,16 @@ DATABASES = {
         'PORT':'3306'
     }
 }
+# web socket and redis setup 
 
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("127.0.0.1", 6379)],
+        },
+    },
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
@@ -144,7 +155,9 @@ AUTH_USER_MODEL = 'myApp.User'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+ASGI_APPLICATION = 'CRM.asgi.application'
 
-MIDDLEWARE += ['CRM.middleware.RoleBasedAccessMiddleware']
+
+
 
 
